@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv=Content-type content="text/html; charset=utf-8">
+  <title>index.html</title>
+</head>
+<body>
+
+<img src="http://upload.wikimedia.org/wikipedia/commons/6/60/Earth_from_Space.jpg">
+
+<script src="../src/publisher.js"></script>
+<script>
+publisher(window);
+
+window.onload = (function (){
+  var start = +new Date;
+  return function (){
+    var loadTime = +new Date - start;
+    this.publish('load', loadTime);
+  }
+}());
+
+window.subscribe('load', function (loadTime){
+  console.log('loaded in ', loadTime, 'ms');
+});
+
+</script>
+
+</body>
+</html>

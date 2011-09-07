@@ -1,0 +1,12 @@
+{
+  "name": "publisher",
+  "description": "A sophisticated mix of Publish/Subscribe (pub/sub) and Aspect-Oriented Programming (AOP) that facilitates autonomous JavaScript module development.",
+  "version": "1.0.0",
+  "tags": ["pubsub", "AOP", "functional programming"],
+  "author": "Ryan Florence <rpflorence+npm@gmail.com> (http://ryanflorence.com)",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rpflorence/publisher.git"
+  },
+  "engines": { "node": ">=0.4.9" }
+}
