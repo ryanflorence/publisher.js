@@ -21,7 +21,7 @@
 // finally to `window` if nothing else is available.
 
 // ### AMD (RequireJS) installation
-// 
+
 // Place `publisher.js` in your application and require it as usual.
 require(['path/to/publisher'], function (publisher) {
   /* Do stuff with publisher here */
@@ -32,12 +32,12 @@ require(['path/to/publisher'], function (publisher) {
 // Install with npm
 //
 //     npm install publisher
-//
+
 // Include like everything else
 var publisher = require('publisher');
 
 // ### Other browser usage
-//
+
 // If ender, jQuery, or $ are defined, publisher is assigned to it--otherwise it
 // hangs from the global object (window).
 ender.publisher
@@ -211,12 +211,10 @@ var subscription2 = publisher.subscribe('foo', function () {
 // to write modules that only concern themselves with themselves: they don't
 // know about other modules, and they don't know about `publisher`.
 
-// While doing this to a built-in isn't really advised, it makes for a great
-// example.
-
 // ### publisher.advise and advisor methods
 
-// First we create an advisor object (for those in the know, we're
+// While doing this to a built-in isn't really advised, it makes for a great
+// example. First we create an advisor object (for those in the know, we're
 // using Aspect Oriented Programming techniques to achieve this functionality).
 var adviseMath = publisher.advise(Math);
 
@@ -239,10 +237,26 @@ publisher.subscribe('math:before:pow', function (x, y, mathReference) {
   console.log(mathReference === Math); //> true
 });
 
+// The console logs 2, 3, and true from the subscription above.
+Math.pow(2,3); 
+
 // The arguments to the subscription handler for methods being published "after"
 // they are called are the return value of the method a reference to the object.
 publisher.subscribe('math:after:min', function (returns, mathReference) {
   console.log(returns);
+});
+
+// The console logs 1
+Math.min(1,10,20);
+
+// You can advise multiple methods at a time by sending an object of key:value
+// pairs.  You can also chain the advisor object.
+publisher.advise(Math).before({
+  pow: 'math:before:pow',
+  max: 'math:before:max'
+}).after({
+  min: 'math:after:min',
+  sqrt: 'math:after:sqrt'
 });
 
 // This is an incredibly powerful pattern for connecting the modules in your

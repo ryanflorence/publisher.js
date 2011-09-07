@@ -1,4 +1,4 @@
-docco docs/publisher.js
+docco docs/publisher-guide.js
 rm docs/docco.css
-cp docs/docco-mine.css docs/docco.css
-mv docs/publisher.html docs/index.html
+cp docs/style.css docs/docco.css
+mv docs/publisher-guide.html docs/index.html
