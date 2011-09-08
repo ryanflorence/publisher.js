@@ -14,7 +14,7 @@
   } else if (hasExports) {
     module.exports = theModule;
   } else {
-    (this.jQuery || this.ender || this.$ || this)[name] = theModule;
+    (this.jQuery || this.ender || (!(this.MooTools || this.Prototype) && this.$) || this)[name] = theModule;
   }
 })('publisher', function () {
 
