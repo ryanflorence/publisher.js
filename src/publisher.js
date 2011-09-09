@@ -25,6 +25,11 @@
 
     // ## publisher method: subscribe
     obj.subscribe = function (channel, handler, context){
+      if (typeof channel !== 'string'){
+        for (var i in channel) this.subscribe(i, channel[i]);
+        return;
+      }
+
       var reference = {
         fn: handler,
         context: (context || obj)
