@@ -17,7 +17,7 @@
 
 // `publisher` works as an AMD (RequireJS) module, a Node.js module, or a plain
 // object. If neither AMD nor Node.js environments are detected, the publisher
-// object is assigned the global object (window).
+// object is assigned to the global object (window).
 
 // ### AMD (RequireJS) installation
 
