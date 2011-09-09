@@ -75,6 +75,7 @@
 
     var wrapBefore = function (method) {
       var previous = obj[method];
+      if (!previous) error("Object has no method " + method, obj);
       befores[method] = [];
       obj[method] = function () {
         for (var i = 0, l = befores[method].length, args; i < l; i++){
@@ -88,6 +89,7 @@
 
     var wrapAfter = function (method) {
       var previous = obj[method];
+      if (!previous) error("Object has no method " + method, obj);
       afters[method] = [];
       obj[method] = function () {
         var returns = previous.apply(obj, arguments);
@@ -128,6 +130,14 @@
   var erase = function (arr, item) {
     for (var i = 0, l = arr.length; i < l; i++){
       if (arr[i] === item) arr.splice(i, 1);
+    }
+  };
+
+  var error = function (msg, obj){
+    if (console && console.error){
+      console.error(msg, obj);
+    } else {
+      throw new Error(msg);
     }
   };
 
