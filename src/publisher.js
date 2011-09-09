@@ -5,16 +5,20 @@
 */
 
 (function (name, definition){
-  var theModule = definition(),
-      hasDefine = typeof define === 'function',
+  var hasDefine = typeof define === 'function',
       hasExports = typeof module !== 'undefined' && module.exports;
 
   if (hasDefine){
-    define(theModule);
+    define(definition);
   } else if (hasExports) {
-    module.exports = theModule;
+    module.exports = definition;
   } else {
-    (this.jQuery || this.ender || this.$ || this)[name] = theModule;
+    var _name = this[name];
+    definition.noConflict = function () {
+      this[name] = _name;
+      return definition;
+    };
+    this[name] = definition;
   }
 })('publisher', function () {
 
@@ -127,4 +131,4 @@
   // The publisher function is itself a publisher
   return publisher(publisher);
 
-});
+}());
