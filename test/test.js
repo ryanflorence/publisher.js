@@ -112,7 +112,7 @@ test('subscription', function (t) {
 });
 
 test('advise', function (t){
-  t.plan(12);
+  t.plan(14);
 
   var adviseMath = publisher.advise(Math)
     .before('pow', 'math:before:pow')
@@ -120,7 +120,7 @@ test('advise', function (t){
     .after('pow',  'math:after:pow')
     .after({min:   'math:after:min'});
 
-  publisher.subscribe('math:before:pow', function (a, b, obj) {
+  publisher.subscribe('math:before:pow', function (obj, a, b) {
     t.ok(true, 'called math:before:pow');
     t.equal(a, 2, 'arguments passed to before advice');
     t.equal(b, 3, 'arguments passed to before advice');
@@ -131,9 +131,11 @@ test('advise', function (t){
     t.ok(true, 'called math:before:max');
   });
 
-  publisher.subscribe('math:after:pow', function (returns, obj) {
+  publisher.subscribe('math:after:pow', function (obj, returns, a, b) {
     t.ok(true, 'called individually subscribed channel');
     t.equal(returns, 8, 'return value passed in as argument');
+    t.equal(a, 2, 'arguments passed to after advice');
+    t.equal(b, 3, 'arguments passed to after advice');
     t.equal(obj, Math, 'set last argument to the advised object');
   });
 

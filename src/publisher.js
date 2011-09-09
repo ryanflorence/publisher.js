@@ -77,8 +77,7 @@
       obj[method] = function () {
         for (var i = 0, l = befores[method].length, args; i < l; i++){
           args = slice.call(arguments, 0);
-          args.unshift(befores[method][i]);
-          args.push(obj);
+          args.unshift(befores[method][i], obj);
           publisher.publish.apply(publisher, args);
         }
         return previous.apply(obj, arguments);
@@ -91,7 +90,9 @@
       obj[method] = function () {
         var returns = previous.apply(obj, arguments);
         for (var i = 0, l = afters[method].length, args; i < l; i++){
-          publisher.publish(afters[method][i], returns, obj);
+          args = slice.call(arguments, 0);
+          args.unshift(afters[method][i], obj, returns);
+          publisher.publish.apply(publisher, args);
         }
         return returns;
       };
