@@ -75,6 +75,27 @@ test('multiple subscriptions on different channels', function (t) {
   publisher.publish('bar');
 });
 
+test('alternate subscribe signatures', function (t) {
+  t.plan(3);
+
+  // Subscribe an object with a method matching the channel name
+  var obj = {};
+  obj['☃'] = function () { t.ok(true, 'snowman method called'); };
+  publisher.subscribe('☃', obj);
+
+  // Subscribe multiple handlers at once
+  publisher.subscribe({
+    '☹': function (){ t.ok(true, 'sad handler called'); },
+    '☺': function () { t.ok(true, 'happy handler called'); }
+  });
+
+  publisher.publish('☃');
+  publisher.publish('☹');
+  publisher.publish('☺');
+
+  t.end();
+});
+
 test('handler context', function (t) {
   var o = {}, other = {};
 

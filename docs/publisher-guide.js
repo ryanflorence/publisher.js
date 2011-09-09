@@ -57,6 +57,12 @@ publisher.subscribe('onAwesome', function () {
   console.log('awesome');
 });
 
+// You can also subscribe to multiple channels at once
+publisher.subscribe({
+  'onAwesome': function () { /* do stuff */ },
+  'onLame': function () { /* do lame stuff */}
+});
+
 // ### Publishing a channel
 
 // When interesting things happen in your application, you publish the
@@ -170,6 +176,21 @@ publisher.subscribe('onAwesome', function () {
 // It's most useful when calling the method of another object
 publisher.subscribe('onAwesome', datepicker.open, datepicker);
 
+// ### Alternate subscription signatures
+
+// If you name object methods after a channel, you can simply subscribe the
+// object and everything else is done transparently.
+var obj = {};
+obj['☃'] = function () {
+  console.log('Happy Holidays!');
+};
+publisher.subscribe('☃', obj);
+
+// Publish the snowman and the obj method of the same name is called, with the
+// context set to the object.
+publisher.publish('☃');
+
+
 // ## Subscription Objects
 //
 // The `subscribe` method returns a subscription object allowing you to manage
@@ -264,3 +285,4 @@ publisher.advise(Math).before({
 
 // This is an incredibly powerful pattern for connecting the modules in your
 // application.
+

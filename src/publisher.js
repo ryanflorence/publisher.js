@@ -30,6 +30,12 @@
         return;
       }
 
+      // alternate signature
+      if (typeof handler === 'object'){
+        context = handler;
+        handler = context[channel];
+      }
+
       var reference = {
         fn: handler,
         context: (context || obj)
@@ -143,5 +149,4 @@
 
   // The publisher function is itself a publisher
   return publisher(publisher);
-
 });

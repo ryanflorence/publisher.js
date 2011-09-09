@@ -90,5 +90,5 @@ Python installed, then simply run from the repository root:
     $ ./bin/generate-docs
 
 [guide]:http://ryanflorence.com/publisher.js/
-[cool-part]:http://ryanflorence.com/publisher.js/#section-41
+[cool-part]:http://ryanflorence.com/publisher.js/#section-45
 [issues]:https://github.com/rpflorence/publisher.js/issues/new
