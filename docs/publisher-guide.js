@@ -17,8 +17,7 @@
 
 // `publisher` works as an AMD (RequireJS) module, a Node.js module, or a plain
 // object. If neither AMD nor Node.js environments are detected, the publisher
-// object is assigned to common global objects like `ender`, `jQuery`, `$`, and
-// finally to `window` if nothing else is available.
+// object is assigned the global object (window).
 
 // ### AMD (RequireJS) installation
 
@@ -38,14 +37,13 @@ var publisher = require('publisher');
 
 // ### Other browser usage
 
-// If ender, jQuery, or $ are defined, publisher is assigned to it--otherwise it
-// hangs from the global object (window).
-ender.publisher
-jQuery.publisher
-$.publisher
+// If neither AMD nor Node.js are detected, publisher is global with a
+// `noConflict` that restores the previous `publisher` definition and returns
+// the publisher object.
 publisher
+publisher.noConflict();
 
-// All of the usage is identical among enviornments.
+// All of the usage is identical among environments.
 
 // ## Basic Example
 
@@ -211,43 +209,46 @@ var subscription2 = publisher.subscribe('foo', function () {
 // to write modules that only concern themselves with themselves: they don't
 // know about other modules, and they don't know about `publisher`.
 
-// ### publisher.advise and advisor methods
+
+// ### Advising Math
 
 // While doing this to a built-in isn't really advised, it makes for a great
-// example. First we create an advisor object (for those in the know, we're
-// using Aspect Oriented Programming techniques to achieve this functionality).
+// example. First we create an advisor object.
 var adviseMath = publisher.advise(Math);
 
-// Advisor objects have two methods, `before`, and `after`.  Supply the name of
-// the object method you want to be published, and the channel to publish.
-// It makes sense to put the timing in the channel name (like before, after) but
-// it doesn't matter what you use.
+// Advisor objects have two methods, `before`, and `after` that tell
+// `publisher` to publish to a channel before or after a method is called.
 
+// ### advise before
+
+// Before `Math.pow` is called, publisher will publish to `'math:before:pow'`.
 adviseMath.before('pow', 'math:before:pow');
-adviseMath.after('min', 'math:after:min');
 
-// Whenever `Math.pow` or `Math.min` are called, the publisher will publish
-// the channel associated with the method.
-
-// The arguments to the method being published "before" it's called are passed
-// into the subscription handler, and the final argument is a reference to the
-// object.
-publisher.subscribe('math:before:pow', function (x, y, mathReference) {
+// The subscription handler gets the object being advised (`Math`) as the first
+// argument and then the arguments sent to `Math.pow`.
+publisher.subscribe('math:before:pow', function logPowStuff(math, x, y) {
   console.log(x, y);
-  console.log(mathReference === Math); //> true
+  console.log(math === Math);
 });
 
-// The console logs 2, 3, and true from the subscription above.
-Math.pow(2,3); 
+// The logPowStuff function gets called.  The console logs `2`, `3`, and `true`.
+Math.pow(2,3);
 
-// The arguments to the subscription handler for methods being published "after"
-// they are called are the return value of the method a reference to the object.
-publisher.subscribe('math:after:min', function (returns, mathReference) {
+// ### advise after
+
+// After `Math.sqrt` is called, publisher will publish to `'√'`.  The name of
+// the channel being published doesn't matter, this one seems appropriate.
+adviseMath.after('min', '√');
+
+// The subscription handler gets the object being advised (`Math`) as the first
+// argument, the return value of the operation, and then the arguments sent to
+// `Math.sqrt`.
+publisher.subscribe('√', function logReturns(math, returns, x) {
   console.log(returns);
 });
 
-// The console logs 1
-Math.min(1,10,20);
+// logReturns gets called and the console logs 5.
+Math.sqrt(25);
 
 // You can advise multiple methods at a time by sending an object of key:value
 // pairs.  You can also chain the advisor object.
@@ -256,7 +257,7 @@ publisher.advise(Math).before({
   max: 'math:before:max'
 }).after({
   min: 'math:after:min',
-  sqrt: 'math:after:sqrt'
+  sqrt: '√'
 });
 
 // This is an incredibly powerful pattern for connecting the modules in your
