@@ -20,9 +20,9 @@ your objects together.
 Installation and Universal JavaScript Support
 --------------------------------------------------------------------------------
 
-// `publisher` works as an AMD (RequireJS) module, a Node.js module, or a plain
-// object. If neither AMD nor Node.js environments are detected, the publisher
-// object is assigned to the global object (window).
+`publisher` works as an AMD (RequireJS) module, a Node.js module, or a plain
+object. If neither AMD nor Node.js environments are detected, the publisher
+object is assigned to the global object (window).
 
 ### AMD (RequireJS) installation
 
