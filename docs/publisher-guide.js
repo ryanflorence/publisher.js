@@ -5,6 +5,8 @@
 
 // Please use github issues to report any bugs.  Pull requests welcome!
 
+// [View this live on jsFiddle](http://jsfiddle.net/rpflorence/6QScG/)
+
 // ## About Pub/Sub in JavaScript
 //
 // When moving from bang-it-out domready code to modular development most of

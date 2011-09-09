@@ -5,6 +5,7 @@ publisher.js
 
 * [Read the guide][guide]
 * [Read the really neat part of the guide][cool-part]
+* [The guide on jsFiddle](http://jsfiddle.net/rpflorence/6QScG/)
 * [Report an issue][issues]
 
 `publisher.js` is a sophisticated mix of publish/subscribe (pub/sub) and
@@ -90,5 +91,5 @@ Python installed, then simply run from the repository root:
     $ ./bin/generate-docs
 
 [guide]:http://ryanflorence.com/publisher.js/
-[cool-part]:http://ryanflorence.com/publisher.js/#section-40
+[cool-part]:http://ryanflorence.com/publisher.js/#section-41
 [issues]:https://github.com/rpflorence/publisher.js/issues/new
