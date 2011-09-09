@@ -1,6 +1,6 @@
 /*!
  * publisher.js - (c) Ryan Florence 2011
- * github.com/rpflorence/publisher
+ * github.com/rpflorence/publisher.js
  * MIT License
 */
 
