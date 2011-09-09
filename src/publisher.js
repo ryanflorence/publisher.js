@@ -5,20 +5,17 @@
 */
 
 (function (name, definition){
-  var hasDefine = typeof define === 'function',
-      hasExports = typeof module !== 'undefined' && module.exports;
-
-  if (hasDefine){
+  if (typeof define === 'function'){
     define(definition);
-  } else if (hasExports) {
-    module.exports = definition;
+  } else if (typeof module !== 'undefined' && module.exports) {
+    module.exports = definition();
   } else {
-    var _name = this[name];
-    definition.noConflict = function () {
+    var theModule = definition(), _name = this[name];
+    theModule.noConflict = function () {
       this[name] = _name;
-      return definition;
+      return theModule;
     };
-    this[name] = definition;
+    this[name] = theModule;
   }
 })('publisher', function () {
 
@@ -132,4 +129,4 @@
   // The publisher function is itself a publisher
   return publisher(publisher);
 
-}());
+});
