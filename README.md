@@ -48,14 +48,13 @@ var publisher = require('publisher');
 
 ### Other browser usage
 
-If ender, jQuery, or $ are defined, publisher is assigned to it--otherwise it
-hangs from the global object (window).
+If neither AMD nor Node.js are detected, publisher is global with a
+`noConflict` that restores the previous `publisher` definition and returns
+the publisher object.
 
 ```javascript
-ender.publisher
-jQuery.publisher
-$.publisher
 publisher
+publisher.noConflict();
 ```
 
 License & Copyright
