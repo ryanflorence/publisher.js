@@ -65,7 +65,7 @@
       return channels[channel];
     };
 
-   return obj;
+    return obj;
   };
 
   publisher.advise = function (obj){
