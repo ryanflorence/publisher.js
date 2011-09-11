@@ -5,17 +5,17 @@
 */
 
 (function (name, definition){
-  if (typeof define === 'function'){
+  if (typeof define == 'function'){ // AMD
     define(definition);
-  } else if (typeof module !== 'undefined' && module.exports) {
+  } else if (typeof module != 'undefined' && module.exports) { // Node.js
     module.exports = definition();
-  } else {
-    var theModule = definition(), _name = this[name];
-    theModule.noConflict = function () {
-      this[name] = _name;
+  } else { // Browser
+    var theModule = definition(), context = this, old = context[name];
+    theModule.noConflict = function() {
+      context[name] = old;
       return theModule;
     };
-    this[name] = theModule;
+    context[name] = theModule;
   }
 })('publisher', function () {
 
