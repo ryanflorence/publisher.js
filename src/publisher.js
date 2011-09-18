@@ -160,6 +160,8 @@
     }
   };
 
+  publisher.version = '1.3.0';
+
   // The publisher function is itself a publisher
   return publisher(publisher);
 });
