@@ -76,12 +76,17 @@ test('multiple subscriptions on different channels', function (t) {
 });
 
 test('alternate subscribe signatures', function (t) {
-  t.plan(3);
+  t.plan(5);
 
   // Subscribe an object with a method matching the channel name
   var obj = {};
   obj['☃'] = function () { t.ok(true, 'snowman method called'); };
+  obj['☼'] = function () { t.ok(true, 'sun method called '); };
+  obj['☾'] = function () { t.ok(true, 'moon method called '); };
+  // channel, object
   publisher.subscribe('☃', obj);
+  // channels, object
+  publisher.subscribe(['☼', '☾'], obj);
 
   // Subscribe multiple handlers at once
   publisher.subscribe({
@@ -92,6 +97,8 @@ test('alternate subscribe signatures', function (t) {
   publisher.publish('☃');
   publisher.publish('☹');
   publisher.publish('☺');
+  publisher.publish('☼');
+  publisher.publish('☾');
 
   t.end();
 });

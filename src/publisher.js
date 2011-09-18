@@ -25,12 +25,17 @@
 
     // ## publisher method: subscribe
     obj.subscribe = function (channel, handler, context){
-      if (typeof channel !== 'string'){
-        for (var i in channel) this.subscribe(i, channel[i]);
+      // alternate signatures
+      if (channel instanceof Array || channel.toString() == "[object Array]"){
+        for (var i = 0, l = channel.length; i < l; i++) this.subscribe(channel[i], handler);
         return;
       }
 
-      // alternate signature
+      if (typeof channel === 'object'){
+        for (var key in channel) this.subscribe(key, channel[key]);
+        return;
+      }
+
       if (typeof handler === 'object'){
         context = handler;
         handler = context[channel];
