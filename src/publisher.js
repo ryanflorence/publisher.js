@@ -63,6 +63,14 @@
       }).attach();
     };
 
+    var defaultPattern = /^:/;
+    obj.subscriber = function (subscriber, pattern) {
+      pattern = pattern || defaultPattern;
+      for (var method in subscriber)
+        if (method.match(pattern))
+          obj.subscribe(method.replace(pattern, ''), subscriber[method], subscriber);
+    };
+
     // ## publisher method: publish
     obj.publish = function (channel){
       if (!channels[channel]) return false;

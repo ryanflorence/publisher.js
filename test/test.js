@@ -182,3 +182,19 @@ test('advise', function (t){
 
   t.end();
 });
+
+test('subscriber', function (t) {
+  t.plan(1);
+  var o = {
+    'subscribe: someChannel': function () {
+      t.ok(true, 'called channel');
+    }
+  };
+
+  var pattern = /^subscribe: /;
+  publisher.subscriber(o, pattern);
+  publisher.publish('someChannel');
+  t.end();
+
+});
+
