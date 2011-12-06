@@ -6,7 +6,7 @@
 
 (function (name, definition){
   if (typeof define == 'function'){ // AMD
-    define(definition);
+    define(function(){ return definition()});
   } else if (typeof module != 'undefined' && module.exports) { // Node.js
     module.exports = definition();
   } else { // Browser
