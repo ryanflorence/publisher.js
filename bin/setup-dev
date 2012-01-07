@@ -1,4 +1,3 @@
-npm install tap
-npm install coffee-script
+npm install .
 sudo easy_install Pygments
-npm install docco
+

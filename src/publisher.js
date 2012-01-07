@@ -4,164 +4,101 @@
  * MIT License
 */
 
-(function (name, definition){
-  if (typeof define == 'function'){ // AMD
-    define(function(){ return definition()});
-  } else if (typeof module != 'undefined' && module.exports) { // Node.js
-    module.exports = definition();
-  } else { // Browser
-    var theModule = definition(), context = this, old = context[name];
-    theModule.noConflict = function() {
-      context[name] = old;
-      return theModule;
-    };
-    context[name] = theModule;
+// UMD Boilerplate \o/ && D:
+(function (root, factory) {
+  if (typeof exports === 'object') {
+    module.exports = factory(); // node
+  } else if (typeof define === 'function' && define.amd) {
+    define(factory); // amd
+  } else {
+    // window with noConflict
+    var _publisher = root.publisher;
+    var publisher = root.publisher = factory();
+    root.publisher.noConflict = function () {
+      root.publisher = _publisher;
+      return publisher;
+    }
   }
-})('publisher', function () {
+}(this, function () {
 
-  var publisher = function (obj){
-    var channels = {};
+  var publisher = function (obj) {
+    var topics = {};
     obj = obj || {};
 
-    // ## publisher method: subscribe
-    obj.subscribe = function (channel, handler, context){
-      // alternate signatures
-      if (channel instanceof Array || channel.toString() == "[object Array]"){
-        for (var i = 0, l = channel.length; i < l; i++) this.subscribe(channel[i], handler);
-        return;
+    obj.publish = function (topic/*, messages...*/) {
+      if (!topics[topic]) return obj;
+      var messages = [].slice.call(arguments, 1);
+      for (var i = 0, l = topics[topic].length; i < l; i++) {
+        topics[topic][i].handler.apply(topics[topic][i].context, messages);
+      }
+      return obj;
+    };
+
+    obj.subscribe = function (topicOrSubscriber, handlerOrTopics) {
+      var firstType = typeof topicOrSubscriber;
+
+      if (firstType === 'string') {
+        return subscribe.apply(null, arguments);
       }
 
-      if (typeof channel === 'object'){
-        for (var key in channel) this.subscribe(key, channel[key]);
-        return;
+      if (firstType === 'object' && !handlerOrTopics) {
+        return subscribeMultiple.apply(null, arguments);
       }
 
-      if (typeof handler === 'object'){
-        context = handler;
-        handler = context[channel];
+      if (typeof handlerOrTopics === 'string') {
+        return hitch.apply(null, arguments);
       }
 
-      var reference = {
-        fn: handler,
-        context: (context || obj)
-      };
+      return hitchMultiple.apply(null, arguments);
+    };
 
-      if (!channels[channel]) channels[channel] = [];
-
-      return ({
-        // ## subscription method: attach
+    function subscribe (topic, handler, context) {
+      var reference = { handler: handler, context: context || obj };
+      topic = topics[topic] || (topics[topic] = []);
+      topic.push(reference);
+      return {
         attach: function () {
-          channels[channel].push(reference);
+          topic.push(reference);
           return this;
         },
-
-        // ## subscription method: detach
         detach: function () {
-          erase(channels[channel], reference);
+          erase(topic, reference);
           return this;
         }
-      }).attach();
+      };
     };
 
-    var defaultPattern = /^:/;
-    obj.subscriber = function (subscriber, pattern) {
-      pattern = pattern || defaultPattern;
-      for (var method in subscriber)
-        if (method.match(pattern))
-          obj.subscribe(method.replace(pattern, ''), subscriber[method], subscriber);
-    };
-
-    // ## publisher method: publish
-    obj.publish = function (channel){
-      if (!channels[channel]) return false;
-
-      var args = [].slice.call(arguments, 1);
-
-      for (var i = 0, l = channels[channel].length; i < l; i++) {
-        channels[channel][i].fn.apply(channels[channel][i].context, args);
+    function subscribeMultiple (pairs) {
+      var subscriptions = {};
+      for (var topic in pairs) {
+        if (!pairs.hasOwnProperty(topic)) continue;
+        subscriptions[topic] = subscribe(topic, pairs[topic]);
       }
-
-      return channels[channel];
+      return subscriptions;
     };
+
+    function hitch (subscriber, topic) {
+      return subscribe(topic, subscriber[topic], subscriber);
+    };
+
+    function hitchMultiple (subscriber, topics) {
+      var subscriptions = [];
+      for (var i = 0, l = topics.length; i < l; i++) {
+        subscriptions.push( hitch(subscriber, topics[i]) );
+      }
+      return subscriptions;
+    };
+
+    function erase (arr, victim) {
+      for (var i = 0, l = arr.length; i < l; i++){
+        if (arr[i] === victim) arr.splice(i, 1);
+      }
+    }
 
     return obj;
   };
 
-  publisher.advise = function (obj){
-
-    var befores = {},
-        afters = {};
-
-    var wrapBefore = function (method) {
-      var previous = obj[method];
-      if (!previous) error("Object has no method " + method, obj);
-      befores[method] = [];
-      obj[method] = function () {
-        for (var i = 0, l = befores[method].length, args; i < l; i++){
-          args = slice.call(arguments, 0);
-          args.unshift(befores[method][i], obj);
-          publisher.publish.apply(publisher, args);
-        }
-        return previous.apply(obj, arguments);
-      };
-    };
-
-    var wrapAfter = function (method) {
-      var previous = obj[method];
-      if (!previous) error("Object has no method " + method, obj);
-      afters[method] = [];
-      obj[method] = function () {
-        var returns = previous.apply(obj, arguments);
-        for (var i = 0, l = afters[method].length, args; i < l; i++){
-          args = slice.call(arguments, 0);
-          args.unshift(afters[method][i], obj, returns);
-          publisher.publish.apply(publisher, args);
-        }
-        return returns;
-      };
-    };
-
-    return {
-      before: function (method, channel) {
-        if (typeof method !== 'string'){
-          for (var i in method) this.before(i, method[i]);
-          return this;
-        }
-        if (!befores[method]) wrapBefore(method);
-        befores[method].push(channel);
-        return this;
-      },
-
-      after: function (method, channel) {
-        if (typeof method !== 'string'){
-          for (var i in method) this.after(i, method[i]);
-          return this;
-        }
-        if (!afters[method]) wrapAfter(method);
-        afters[method].push(channel);
-        return this;
-      }
-    };
-  };
-
-  var slice = [].slice;
-
-  var erase = function (arr, item) {
-    for (var i = 0, l = arr.length; i < l; i++){
-      if (arr[i] === item) arr.splice(i, 1);
-    }
-  };
-
-  var error = function (msg, obj){
-    if (console && console.error){
-      console.error(msg, obj);
-    } else {
-      throw new Error(msg);
-    }
-  };
-
-  publisher.version = '1.3.0';
-
-  // The publisher function is itself a publisher
+  // publisher is a publisher, so meta ...
   return publisher(publisher);
-});
+}));
+

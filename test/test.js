@@ -83,10 +83,12 @@ test('alternate subscribe signatures', function (t) {
   obj['☃'] = function () { t.ok(true, 'snowman method called'); };
   obj['☼'] = function () { t.ok(true, 'sun method called '); };
   obj['☾'] = function () { t.ok(true, 'moon method called '); };
-  // channel, object
-  publisher.subscribe('☃', obj);
-  // channels, object
-  publisher.subscribe(['☼', '☾'], obj);
+
+  // hitch
+  publisher.subscribe(obj, '☃');
+
+  // hitch multiple
+  publisher.subscribe(obj, ['☼', '☾']);
 
   // Subscribe multiple handlers at once
   publisher.subscribe({
@@ -137,64 +139,5 @@ test('subscription', function (t) {
   p.publish('test', 'attach subscription');
 
   t.end();
-});
-
-test('advise', function (t){
-  t.plan(14);
-
-  var adviseMath = publisher.advise(Math)
-    .before('pow', 'math:before:pow')
-    .before({max:  'math:before:max'})
-    .after('pow',  'math:after:pow')
-    .after({min:   'math:after:min'});
-
-  publisher.subscribe('math:before:pow', function (obj, a, b) {
-    t.ok(true, 'called math:before:pow');
-    t.equal(a, 2, 'arguments passed to before advice');
-    t.equal(b, 3, 'arguments passed to before advice');
-    t.equal(obj, Math, 'set last argument to the advised object');
-  });
-
-  publisher.subscribe('math:before:max', function () {
-    t.ok(true, 'called math:before:max');
-  });
-
-  publisher.subscribe('math:after:pow', function (obj, returns, a, b) {
-    t.ok(true, 'called individually subscribed channel');
-    t.equal(returns, 8, 'return value passed in as argument');
-    t.equal(a, 2, 'arguments passed to after advice');
-    t.equal(b, 3, 'arguments passed to after advice');
-    t.equal(obj, Math, 'set last argument to the advised object');
-  });
-
-  publisher.subscribe('math:after:min', function () {
-    t.ok(true, 'called multiple-subscribed channel');
-  });
-
-  var pow = Math.pow(2,3);
-  t.equal(pow, 8);
-
-  var max = Math.max(1,2,3);
-  t.equal(max, 3);
-
-  var min = Math.min(1,2,3);
-  t.equal(min, 1);
-
-  t.end();
-});
-
-test('subscriber', function (t) {
-  t.plan(1);
-  var o = {
-    'subscribe: someChannel': function () {
-      t.ok(true, 'called channel');
-    }
-  };
-
-  var pattern = /^subscribe: /;
-  publisher.subscriber(o, pattern);
-  publisher.publish('someChannel');
-  t.end();
-
 });
 

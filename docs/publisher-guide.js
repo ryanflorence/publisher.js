@@ -1,3 +1,5 @@
+// This is a guide to the `publisher` module.
+
 // * Author: [Ryan Florence](http://ryanflorence.com)
 // * License: MIT Style
 // * Source: [github](https://github.com/rpflorence/publisher.js)
@@ -5,21 +7,10 @@
 
 // Please use github issues to report any bugs.  Pull requests welcome!
 
-// [View this live on jsFiddle](http://jsfiddle.net/rpflorence/6QScG/)
-
-// ## About Pub/Sub in JavaScript
-//
-// When moving from bang-it-out domready code to modular development most of
-// us start to create an unhealthy mess of object dependencies and coupling.
-// Ideally, you don't want your objects to know about each other.  They need to
-// exist atomically, for testability, maintainability, and portability.  Enter
-// Pub/Sub and Aspect Oriented Programming.
-
 // ## Installation - Universal JavaScript support
-
+//
 // `publisher` works as an AMD (RequireJS) module, a Node.js module, or a plain
-// object. If neither AMD nor Node.js environments are detected, the publisher
-// object is assigned to the global object (window).
+// object on the global object.
 
 // ### AMD (RequireJS) installation
 
@@ -42,31 +33,25 @@ var publisher = require('publisher');
 // If neither AMD nor Node.js are detected, publisher is global with a
 // `noConflict` that restores the previous `publisher` definition and returns
 // the publisher object.
-publisher
-publisher.noConflict();
+publisher;
+var myPublisher = publisher.noConflict();
 
 // All of the usage is identical among environments.
 
 // ## Basic Example
 
-// ### Subscribing to a channel
+// ### Subscribing to a topic
 
-// First you "subscribe" to a channel, and provide a handler to call when the
-// channel is published.
+// First you "subscribe" to a topic, and provide a handler to call when the
+// topic is published.
 publisher.subscribe('onAwesome', function () {
   console.log('awesome');
 });
 
-// You can also subscribe to multiple channels at once
-publisher.subscribe({
-  'onAwesome': function () { /* do stuff */ },
-  'onLame': function () { /* do lame stuff */}
-});
-
-// ### Publishing a channel
+// ### Publishing a topic
 
 // When interesting things happen in your application, you publish the
-// channel of interest.  Any attached subscription handlers will be called.  In
+// topic of interest.  Any attached subscription handlers will be called.  In
 // this case, the console will log "awesome".
 publisher.publish('onAwesome');
 
@@ -82,7 +67,7 @@ publisher.publish('onAwesome', 1, 2, 'foo');
 
 // ## Widget example
 
-// The channel name is simply a string, which is often namespaced to objects in
+// The topic name is simply a string, which is often namespaced to objects in
 // the applicaton and then the method or action they are taking.
 var datepicker = {
   open: function (){
@@ -103,7 +88,7 @@ var datepicker = {
   }
 };
 
-// Subscribe to all the channels
+// Subscribe to all the topics
 publisher.subscribe('datepicker/open', function () {
   blurOtherStuff();
 });
@@ -135,28 +120,15 @@ datepicker.subscribe('open', doSomethingOnOpen);
 
 // This pattern makes extending the behavior of an object trivial.
 
-// ## It's a lot like DOM events ...
-
-// Here we make the window a publisher and publish the 'load' channel in its
-// `onload` property method.  Making it behave like `addEventListener`, except
-// we also pass along the load time.
-publisher(window);
-
-window.onload = (function (){
-  var start = +new Date;
-  return function (){
-    var loadTime = +new Date - start;
-    this.publish('load', loadTime);
-  }
-}());
-
-window.subscribe('load', function (loadTime){
-  console.log('loaded in ', loadTime, 'ms');
-});
+// You can also create a generic publisher by calling publisher with no
+// arguments at all.
+var localPub = publisher();
+localPub.subscribe('topic', function() {});
+localPub.publish('topic');
 
 // ## Binding the context of handlers to other objects
 
-// Subscription handlers are naturally bound to the object.  We can verify this
+// Subscription handlers are naturally bound to the publisher. We can verify this
 // behavior in our previous examples.
 publisher.subscribe('onAwesome', function () {
   console.log(this === publisher); //> true
@@ -173,23 +145,71 @@ publisher.subscribe('onAwesome', function () {
   console.log(this === context); //> true
 }, context);
 
-// It's most useful when calling the method of another object
+// It's useful when calling the method of another object
 publisher.subscribe('onAwesome', datepicker.open, datepicker);
 
-// ### Alternate subscription signatures
+// But that's ugly, so publisher has some alternate signatures.
 
-// If you name object methods after a channel, you can simply subscribe the
-// object and everything else is done transparently.
-var obj = {};
-obj['☃'] = function () {
-  console.log('Happy Holidays!');
+// ## Alternate subscription signatures
+
+// ### The "hitch" subscription signature
+
+// If you name object methods after a topic, you can simply "hitch" the
+// object. Publisher will create a subscription on the topic matching the
+// object's method name, and sets the object as the context of the
+// handler.
+datepicker.onAwesome = function(){
+  this.open(); // this is datepicker
 };
-publisher.subscribe('☃', obj);
+publisher.subscribe(datepicker, 'onAwesome');
 
-// Publish the snowman and the obj method of the same name is called, with the
-// context set to the object.
-publisher.publish('☃');
+// which is functionally equivalent to, but much better looking than:
+publisher.subscribe('onAwesome', datepicker.onAwesome, datepicker);
 
+// This is really useful for publishing application events like domready:
+// All objects that care about the event can have a method named
+// `domready` and then respond to the topic when it's published.
+
+// Assuming we're using jQuery...
+datepicker.domready = function () {
+  this.element = $('#some_element');
+}
+publisher.subscribe(datepicker, 'domready');
+
+// elsewhere in the app
+$(function () {
+  publisher.publish('domready');
+});
+
+// ### The "hitch multiple" subscribe signature
+
+// Often your subscriber will be interested in multiple topics, doing
+// this gets annoying:
+publisher.subscribe(datepicker, 'domready');
+publisher.subscribe(datepicker, 'calendar:on');
+publisher.subscribe(datepicker, 'calendar:off');
+
+// Instead, publisher supports an array for the second argument, so when
+// your object has multiple methods with names matching topics you want
+// to subscribe to, you can do it in one statement.
+publisher.subscribe(datepicker, [
+  'domready',
+  'calendar:on',
+  'calendar:off'
+]);
+
+// ### subscribing multiple handlers
+
+// You can also subscribe to multiple topics at once, so instead of
+// doing them all individually:
+publisher.subscribe('foo', function(){});
+publisher.subscribe('bar', function(){});
+
+// You can do them all at once
+publisher.subscribe({
+  'foo': function(){},
+  'bar': function(){}
+});
 
 // ## Subscription Objects
 //
@@ -220,69 +240,30 @@ var subscription2 = publisher.subscribe('foo', function () {
   console.log('foo 2');
 }).detach();
 
-// ## Advising Objects, 100% Decoupled Applications
+// Signatures that create several subscriptions at once return a
+// collection of handlers of the same type.
+var subscriptions = publisher.subscribe({
+  foo: function() {},
+  bar: function() {}
+});
+
+subscriptions.foo.detach();
+subscriptions.bar.attach();
+
+var hitchSubscriptions = publisher.subscribe(datepicker, [
+  'domready',
+  'calendar:on',
+  'calendar:off'
+]);
+
+hitchSubscriptions[0].detach();
+hitchSubscriptions[1].detach(); // etc.
+
+// ## Advising Objects
 //
-// Most pub/sub systems require your objects to know about the publisher.  As
-// with all of the previous examples, we had to reference the publisher object
-// within our modules.  The goal of pub/sub is to decouple our objects--and
-// requiring every module to know about `publisher` is still the same problem.
+// Deprecated.
 //
-// With `publisher.advise` you can write truly atomic modules--only publisher
-// has to know about the objects, and not the other way around.  This allows you
-// to write modules that only concern themselves with themselves: they don't
-// know about other modules, and they don't know about `publisher`.
-
-
-// ### Advising Math
-
-// While doing this to a built-in isn't really advised, it makes for a great
-// example. First we create an advisor object.
-var adviseMath = publisher.advise(Math);
-
-// Advisor objects have two methods, `before`, and `after` that tell
-// `publisher` to publish to a channel before or after a method is called.
-
-// ### advise before
-
-// Before `Math.pow` is called, publisher will publish to `'math:before:pow'`.
-adviseMath.before('pow', 'math:before:pow');
-
-// The subscription handler gets the object being advised (`Math`) as the first
-// argument and then the arguments sent to `Math.pow`.
-publisher.subscribe('math:before:pow', function logPowStuff(math, x, y) {
-  console.log(x, y);
-  console.log(math === Math);
-});
-
-// The logPowStuff function gets called.  The console logs `2`, `3`, and `true`.
-Math.pow(2,3);
-
-// ### advise after
-
-// After `Math.sqrt` is called, publisher will publish to `'√'`.  The name of
-// the channel being published doesn't matter, this one seems appropriate.
-adviseMath.after('min', '√');
-
-// The subscription handler gets the object being advised (`Math`) as the first
-// argument, the return value of the operation, and then the arguments sent to
-// `Math.sqrt`.
-publisher.subscribe('√', function logReturns(math, returns, x) {
-  console.log(returns);
-});
-
-// logReturns gets called and the console logs 5.
-Math.sqrt(25);
-
-// You can advise multiple methods at a time by sending an object of key:value
-// pairs.  You can also chain the advisor object.
-publisher.advise(Math).before({
-  pow: 'math:before:pow',
-  max: 'math:before:max'
-}).after({
-  min: 'math:after:min',
-  sqrt: '√'
-});
-
-// This is an incredibly powerful pattern for connecting the modules in your
-// application.
+// If you are one of the few crazy folks who used this (like me),
+// please use advise.js to get this back. I'll be writing a shim soon to
+// show here.
 

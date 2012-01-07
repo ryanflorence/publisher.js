@@ -1,0 +1,14 @@
+<!doctype html>
+<html>
+  <head>
+    <title>publisher.js AMD test</title>
+  </head>
+  <body>
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/require.js/1.0.1/require.min.js"></script>
+    <script>
+      require(['../src/publisher'], function (publisher) {
+        console.assert(publisher, 'publisher loaded as module');
+        console.assert(!window.publisher, 'publisher not added to window');
+      });
+    </script>
+

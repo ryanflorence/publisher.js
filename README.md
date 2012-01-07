@@ -1,32 +1,22 @@
 publisher.js
 ================================================================================
 
-**Cross-cut your concerns with published authority.**
+**feature-rich publish / subscribe system.**
 
-* [Read the guide][guide]
-* [Read the really neat part of the guide][cool-part]
-* [The guide on jsFiddle](http://jsfiddle.net/rpflorence/6QScG/)
-* [Report an issue][issues]
+Guide
+-----
 
-`publisher.js` is a sophisticated mix of publish/subscribe (pub/sub) and
-Aspect-Oriented Programming that facilitates autonomous JavaScript module
-development.
-
-In other words, your modules don't have to know about other modules, or the
-application, or even the `publisher` object--they can be 100% self-contained.
-The `publisher` object handles all of the cross-cutting concerns, connecting
-your objects together.
+[Read the guide][guide] to learn how to use publisher.
 
 Installation and Universal JavaScript Support
 --------------------------------------------------------------------------------
 
-`publisher` works as an AMD (RequireJS) module, a Node.js module, or a plain
-object. If neither AMD nor Node.js environments are detected, the publisher
-object is assigned to the global object (window).
+`publisher` works as an AMD module, a Node.js module, or a plain object.
 
 ### AMD (RequireJS) installation
 
-Place `publisher.js` in your application and require it as usual.
+Place `publisher.js` in your application and require it as usual, it
+registers anonymously.
 
 ```javascript
 require(['path/to/publisher'], function (publisher) {
@@ -90,5 +80,3 @@ Python installed, then simply run from the repository root:
     $ ./bin/generate-docs
 
 [guide]:http://ryanflorence.com/publisher.js/
-[cool-part]:http://ryanflorence.com/publisher.js/#section-45
-[issues]:https://github.com/rpflorence/publisher.js/issues/new
